@@ -80,10 +80,33 @@ def findclumps(genome, k, l, t):
             frequentpatterns.append(pattern)
     return list(set(frequentpatterns))
 
+def findclumpsfaster(genome, k, l, t):
+    frequentpatterns = []
+    clump = [0 for i in range(4**k)]
+    text = genome[0:l]
+    frequencyarray = computefrequences(text, k)
+    for i in range(4**k):
+        if frequencyarray[i] >= t:
+            clump[i] = 1
+    for i in range(1, len(genome)-l):
+        firstpattern = genome[i-1:i-1+k]
+        j = patterntonumber(firstpattern)
+        frequencyarray[j] -= 1
+        lastpattern = genome[i+l-k:i+l]
+        j = patterntonumber(lastpattern)
+        frequencyarray[j] += 1
+        if frequencyarray[j] >= t:
+            clump[j] = 1
+    for i in range(4**k):
+        if clump[i] == 1:
+            pattern = numbertopattern(i, k)
+            frequentpatterns.append(pattern)
+    return list(set(frequentpatterns))
+
+
 if __name__ == "__main__":
     import sys
     input_file = open(str(sys.argv[1]),"r")
-    clump_list = findclumps(str(input_file.read()).rstrip("\n"),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]))
-    print clump_list
+    clump_list = findclumpsfaster(str(input_file.read()).rstrip("\n"),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]))
     print " ".join(map(str, clump_list))
 #    print findclumps("CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTGTAA", 5, 50, 4)
